@@ -22,16 +22,16 @@ contract RockPaperScissors {
         Choice choice;
     }
     
-    // ·Æ°Î‚®•
+    // —Å–æ–±—ã—Ç–∏–µ
     event Payout(address player, uint amount);
 
-    uint public bet; //·‚†¢™† ®£‡Æ™†
-    uint public deposit; //§•ØÆß®‚ ®£‡Æ™†
-    uint public revealPeriod; // Ø•‡®Æ§ ¢‡•¨•≠® §´Ô ‡†·™‡Î‚®Ô ¢Î°Æ‡† ¢‚Æ‡Æ£Æ ®£‡Æ™†
+    uint public bet; //—Å—Ç–∞–≤–∫–∞ –∏–≥—Ä–æ–∫–∞
+    uint public deposit; //–¥–µ–ø–æ–∑–∏—Ç –∏–≥—Ä–æ–∫–∞
+    uint public revealPeriod; // –ø–µ—Ä–∏–æ–¥ –≤—Ä–µ–º–µ–Ω–∏ –¥–ª—è —Ä–∞—Å–∫—Ä—ã—Ç–∏—è –≤—ã–±–æ—Ä–∞ –≤—Ç–æ—Ä–æ–≥–æ –∏–≥—Ä–æ–∫–∞
 
-    Player[2] public players; // ®£‡Æ™®
-    uint public revealDeadline; // §†‚†, §Æ ™Æ‚Æ‡Æ© ≠„¶≠Æ ‡†·™‡Î‚Ï ·¢Æ© ¢Î°Æ‡
-    Stage public stage = Stage.FirstPlayerCommit; // „·‚‚†≠Æ¢™† ®ß≠†Á†´Ï≠Æ£Æ Ì‚†Ø†
+    Player[2] public players; // –∏–≥—Ä–æ–∫–∏
+    uint public revealDeadline; // –¥–∞—Ç–∞, –¥–æ –∫–æ—Ç–æ—Ä–æ–π –Ω—É–∂–Ω–æ —Ä–∞—Å–∫—Ä—ã—Ç—å —Å–≤–æ–π –≤—ã–±–æ—Ä
+    Stage public stage = Stage.FirstPlayerCommit; // —É—Å—Ç—Ç–∞–Ω–æ–≤–∫–∞ –∏–∑–Ω–∞—á–∞–ª—å–Ω–æ–≥–æ —ç—Ç–∞–ø–∞
 
     constructor(uint _bet, uint _deposit, uint _revealPeriod) public {
         bet = _bet;
@@ -43,7 +43,7 @@ contract RockPaperScissors {
     function commit(bytes32 commitment) payable public {
 
         uint playerIndex;
-        // ÆØ‡•§´•≠®• ≠Æ¨•‡† ®£‡Æ™†
+        // –æ–ø—Ä–µ–¥–ª–µ–Ω–∏–µ –Ω–æ–º–µ—Ä–∞ –∏–≥—Ä–æ–∫–∞
         if(stage == Stage.FirstPlayerCommit) playerIndex = 0;
         else if(stage == Stage.SecondPlayerCommit) playerIndex = 1;
         else revert(); // error handling
@@ -51,13 +51,13 @@ contract RockPaperScissors {
         uint commitAmount = bet + deposit;
         require(msg.value >= commitAmount);
         
-        // Æ‚Ø‡†¢´Ô•¨ ´®Ë≠•• ·•°•
+        // –æ—Ç–ø—Ä–∞–≤–ª—è–µ–º –ª–∏—à–Ω–µ–µ —Å–µ–±–µ
         if(msg.value > commitAmount) msg.sender.transfer(msg.value - commitAmount);
         
-        // ·ÆÂ‡†≠Ô•¨ ®≠‰Æ‡¨†Ê®Ó ®£‡Æ™†
+        // —Å–æ—Ö—Ä–∞–Ω—è–µ–º –∏–Ω—Ñ–æ—Ä–º–∞—Ü–∏—é –∏–≥—Ä–æ–∫–∞
         players[playerIndex] = Player(msg.sender, commitment, Choice.None);
 
-        // Ø•‡•ÂÆ§®¨ ™Æ ¢‚Æ‡Æ¨„ ™Æ¨¨®‚„ ®´® ™ Ø•‡¢Æ¨„ ‡†·™‡Î‚®Ó
+        // –ø–µ—Ä–µ—Ö–æ–¥–∏–º –∫–æ –≤—Ç–æ—Ä–æ–º—É –∫–æ–º–º–∏—Ç—É –∏–ª–∏ –∫ –ø–µ—Ä–≤–æ–º—É —Ä–∞—Å–∫—Ä—ã—Ç–∏—é
         if(stage == Stage.FirstPlayerCommit) stage = Stage.SecondPlayerCommit;
         else stage = Stage.FirstPlayerReveal;
     }
@@ -70,7 +70,7 @@ contract RockPaperScissors {
     function reveal(Choice choice, bytes32 blindingFactor) public CheckStageReveal {
         require(choice == Choice.Rock || choice == Choice.Paper || choice == Choice.Scissors);
         
-        // ÆØ‡•§•´•≠®• ®£‡Æ™†
+        // –æ–ø—Ä–µ–¥–µ–ª–µ–Ω–∏–µ –∏–≥—Ä–æ–∫–∞
         uint playerIndex;
         if(players[0].playerAddress == msg.sender) playerIndex = 0;
         else if (players[1].playerAddress == msg.sender) playerIndex = 1;
@@ -78,18 +78,18 @@ contract RockPaperScissors {
 
         Player storage player = players[playerIndex]; 
 
-        //·‡†¢≠®¢†•¨, Á‚Æ ÂÌË ®£‡Æ™† ·Æ¢Ø†§†•‚ · ‚•¨ ¢Î°Æ‡Æ¨, ™Æ‚Æ‡Î© Æ≠ ‡†·™‡Î´
+        //—Å—Ä–∞–≤–Ω–∏–≤–∞–µ–º, —á—Ç–æ —Ö—ç—à –∏–≥—Ä–æ–∫–∞ —Å–æ–≤–ø–∞–¥–∞–µ—Ç —Å —Ç–µ–º –≤—ã–±–æ—Ä–æ–º, –∫–æ—Ç–æ—Ä—ã–π –æ–Ω —Ä–∞—Å–∫—Ä—ã–ª
         require(keccak256(abi.encodePacked(msg.sender, choice, blindingFactor)) == player.commitment);
         
         player.choice = choice;
 
         if(stage == Stage.FirstPlayerReveal) { 
-            // ß†§†•¨ §•§´†©≠ §´Ô ‡†·™‡Î‚®Ô ¢Î°Æ‡† ¢‚Æ‡Æ£Æ ®£‡Æ™†
+            // –∑–∞–¥–∞–µ–º –¥–µ–¥–ª–∞–π–Ω –¥–ª—è —Ä–∞—Å–∫—Ä—ã—Ç–∏—è –≤—ã–±–æ—Ä–∞ –≤—Ç–æ—Ä–æ–≥–æ –∏–≥—Ä–æ–∫–∞
             revealDeadline = block.number + revealPeriod; 
-            // Ø•‡•ÂÆ§®¨ ™ ‡†·™‡Î‚®Ó ¢Î°Æ‡† ¢‚Æ‡Æ£Æ ®£‡Æ™†
+            // –ø–µ—Ä–µ—Ö–æ–¥–∏–º –∫ —Ä–∞—Å–∫—Ä—ã—Ç–∏—é –≤—ã–±–æ—Ä–∞ –≤—Ç–æ—Ä–æ–≥–æ –∏–≥—Ä–æ–∫–∞
             stage = Stage.SecondPlayerReveal;
         }
-        // Ø•‡•ÂÆ§®¨ ™ Æ‚Ø‡†¢™• §•≠•£
+        // –ø–µ—Ä–µ—Ö–æ–¥–∏–º –∫ –æ—Ç–ø—Ä–∞–≤–∫–µ –¥–µ–Ω–µ–≥
         else stage = Stage.CheckWinner;
     }
 
@@ -101,31 +101,31 @@ contract RockPaperScissors {
     function checkWinner() public CheckStageWin {
         uint player0Payout;
         uint player1Payout;
-        // ¢ÎÁ®·´•≠®• ·„¨¨Î ¢Î®£‡ÎË†
+        // –≤—ã—á–∏—Å–ª–µ–Ω–∏–µ —Å—É–º–º—ã –≤—ã–∏–≥—Ä—ã—à–∞
         uint winningAmount = deposit + 2 * bet;
 
-        //•·´® ¢Î°Æ‡ Æ§®≠†™Æ¢Î©, ‚Æ ¢Æß¢‡†È†•¨ ™†¶§Æ¨„ ®£‡Æ™„ ·‚†¢™„ ® §•ØÆß®‚
+        //–µ—Å–ª–∏ –≤—ã–±–æ—Ä –æ–¥–∏–Ω–∞–∫–æ–≤—ã–π, —Ç–æ –≤–æ–∑–≤—Ä–∞—â–∞–µ–º –∫–∞–∂–¥–æ–º—É –∏–≥—Ä–æ–∫—É —Å—Ç–∞–≤–∫—É –∏ –¥–µ–ø–æ–∑–∏—Ç
         if(players[0].choice == players[1].choice) {
             player0Payout = deposit + bet;
             player1Payout = deposit + bet;
         }
 
-        // •·´® Æ§®≠ ®ß ®£‡Æ™Æ¢ ≠• ·§•´†´ ¢Î°Æ‡, ‚Æ Æ≠ ‚•‡Ô•‚ ·¢Æ© §•ØÆß®‚, † ¢Î®£‡ÎË Æ‚Ø‡†¢´Ô•‚·Ô ‚Æ¨„, ™‚Æ ·§•´†´ ¢Î°Æ‡
+        // –µ—Å–ª–∏ –æ–¥–∏–Ω –∏–∑ –∏–≥—Ä–æ–∫–æ–≤ –Ω–µ —Å–¥–µ–ª–∞–ª –≤—ã–±–æ—Ä, —Ç–æ –æ–Ω —Ç–µ—Ä—è–µ—Ç —Å–≤–æ–π –¥–µ–ø–æ–∑–∏—Ç, –∞ –≤—ã–∏–≥—Ä—ã—à –æ—Ç–ø—Ä–∞–≤–ª—è–µ—Ç—Å—è —Ç–æ–º—É, –∫—Ç–æ —Å–¥–µ–ª–∞–ª –≤—ã–±–æ—Ä
         else if(players[0].choice == Choice.None) {
             player1Payout = winningAmount;
         }
         else if(players[1].choice == Choice.None) {
             player0Payout = winningAmount;
         }
-        // Æ°† ®£‡Æ† ·§•´†´® ‡†ß≠Î• ¢Î°Æ‡Î
+        // –æ–±–∞ –∏–≥—Ä–æ–∞ —Å–¥–µ–ª–∞–ª–∏ —Ä–∞–∑–Ω—ã–µ –≤—ã–±–æ—Ä—ã
         else if(players[0].choice == Choice.Rock) {
             if(players[1].choice == Choice.Paper) {
-                // ™†¨•≠Ï Ø‡Æ®£‡Î¢†•‚ °„¨†£•
+                // –∫–∞–º–µ–Ω—å –ø—Ä–æ–∏–≥—Ä—ã–≤–∞–µ—Ç –±—É–º–∞–≥–µ
                 player0Payout = deposit;
                 player1Payout = winningAmount;
             }
             else if(players[1].choice == Choice.Scissors) {
-                // ™†¨•≠Ï °Ï•‚ ≠Æ¶≠®ÊÎ
+                // –∫–∞–º–µ–Ω—å –±—å–µ—Ç –Ω–æ–∂–Ω–∏—Ü—ã
                 player0Payout = winningAmount;
                 player1Payout = deposit;
             } 
@@ -134,12 +134,12 @@ contract RockPaperScissors {
         }
         else if(players[0].choice == Choice.Paper) {
             if(players[1].choice == Choice.Rock) {
-                // °„¨†£† °Ï•‚ ™†¨•≠Ï
+                // –±—É–º–∞–≥–∞ –±—å–µ—Ç –∫–∞–º–µ–Ω—å
                 player0Payout = winningAmount;
                 player1Payout = deposit;
             }
             else if(players[1].choice == Choice.Scissors) {
-                // °„¨†£† Ø‡Æ®£‡Î¢†•‚ ≠Æ¶≠Ê†¨
+                // –±—É–º–∞–≥–∞ –ø—Ä–æ–∏–≥—Ä—ã–≤–∞–µ—Ç –Ω–æ–∂–Ω—Ü–∞–º
                 player0Payout = deposit;
                 player1Payout = winningAmount;
             }
@@ -147,12 +147,12 @@ contract RockPaperScissors {
         }
         else if(players[0].choice == Choice.Scissors) {
             if(players[1].choice == Choice.Rock) {
-                // ≠Æ¶≠®ÊÎ Ø‡Æ®£‡Î¢†Ó‚ ™†¨≠Ó
+                // –Ω–æ–∂–Ω–∏—Ü—ã –ø—Ä–æ–∏–≥—Ä—ã–≤–∞—é—Ç –∫–∞–º–Ω—é
                 player0Payout = deposit;
                 player1Payout = winningAmount;
             }
             else if(players[1].choice == Choice.Paper) {
-                // ≠Æ¶≠®ÊÎ °ÏÓ‚ °„¨†£„
+                // –Ω–æ–∂–Ω–∏—Ü—ã –±—å—é—Ç –±—É–º–∞–≥—É
                 player0Payout = winningAmount;
                 player1Payout = deposit;
             }
@@ -160,7 +160,7 @@ contract RockPaperScissors {
         }
         else revert();
 
-        // Æ‚Ø‡†¢™† §•≠•£
+        // –æ—Ç–ø—Ä–∞–≤–∫–∞ –¥–µ–Ω–µ–≥
         if(player0Payout != 0 && players[0].playerAddress.send(player0Payout)){
             emit Payout(players[0].playerAddress, player0Payout);            
         }
