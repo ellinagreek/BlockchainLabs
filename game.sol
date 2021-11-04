@@ -173,4 +173,3 @@ contract RockPaperScissors {
         stage = Stage.FirstPlayerCommit;
     }
 }
-
