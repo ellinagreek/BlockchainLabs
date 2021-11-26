@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.8.0;
 
 contract RockPaperScissors {
     enum Choice {
@@ -21,9 +21,10 @@ contract RockPaperScissors {
         bytes32 commitment;
         Choice choice;
     }
-    
+
     // событие
     event Payout(address player, uint amount);
+    event Commit();
 
     uint public bet; //ставка игрока
     uint public deposit; //депозит игрока
@@ -38,22 +39,26 @@ contract RockPaperScissors {
         deposit = _deposit;
         revealPeriod = _revealPeriod;
     }
-    
+
+
 
     function commit(bytes32 commitment) payable public {
-
         uint playerIndex;
         // опредление номера игрока
         if(stage == Stage.FirstPlayerCommit) playerIndex = 0;
         else if(stage == Stage.SecondPlayerCommit) playerIndex = 1;
         else revert(); // error handling
-
+        //emit Commit();
         uint commitAmount = bet + deposit;
         require(msg.value >= commitAmount);
-        
+
         // отправляем лишнее себе
-        if(msg.value > commitAmount) msg.sender.transfer(msg.value - commitAmount);
-        
+        //if(msg.value > commitAmount) msg.sender.call{value: msg.value - commitAmount}("");
+        if(msg.value > commitAmount) {
+            (bool success, ) = msg.sender.call{value: msg.value - commitAmount}("");
+            require(success, "call failed");
+        }
+
         // сохраняем информацию игрока
         players[playerIndex] = Player(msg.sender, commitment, Choice.None);
 
@@ -61,31 +66,31 @@ contract RockPaperScissors {
         if(stage == Stage.FirstPlayerCommit) stage = Stage.SecondPlayerCommit;
         else stage = Stage.FirstPlayerReveal;
     }
-    
+
     modifier CheckStageReveal() {
         require(stage == Stage.FirstPlayerReveal || stage == Stage.SecondPlayerReveal);
         _;
     }
-    
+
     function reveal(Choice choice, bytes32 blindingFactor) public CheckStageReveal {
         require(choice == Choice.Rock || choice == Choice.Paper || choice == Choice.Scissors);
-        
+
         // определение игрока
         uint playerIndex;
         if(players[0].playerAddress == msg.sender) playerIndex = 0;
         else if (players[1].playerAddress == msg.sender) playerIndex = 1;
         else revert();
 
-        Player storage player = players[playerIndex]; 
+        Player storage player = players[playerIndex];
 
         //сравниваем, что хэш игрока совпадает с тем выбором, который он раскрыл
         require(keccak256(abi.encodePacked(msg.sender, choice, blindingFactor)) == player.commitment);
-        
+
         player.choice = choice;
 
-        if(stage == Stage.FirstPlayerReveal) { 
+        if(stage == Stage.FirstPlayerReveal) {
             // задаем дедлайн для раскрытия выбора второго игрока
-            revealDeadline = block.number + revealPeriod; 
+            revealDeadline = block.number + revealPeriod;
             // переходим к раскрытию выбора второго игрока
             stage = Stage.SecondPlayerReveal;
         }
@@ -97,7 +102,7 @@ contract RockPaperScissors {
         require(stage == Stage.CheckWinner || (stage == Stage.SecondPlayerReveal && revealDeadline <= block.number));
         _;
     }
-    
+
     function checkWinner() public CheckStageWin {
         uint player0Payout;
         uint player1Payout;
@@ -128,7 +133,7 @@ contract RockPaperScissors {
                 // камень бьет ножницы
                 player0Payout = winningAmount;
                 player1Payout = deposit;
-            } 
+            }
             else revert();
 
         }
@@ -161,11 +166,15 @@ contract RockPaperScissors {
         else revert();
 
         // отправка денег
-        if(player0Payout != 0 && players[0].playerAddress.send(player0Payout)){
-            emit Payout(players[0].playerAddress, player0Payout);            
+        if(player0Payout != 0) {
+            (bool success, ) = players[0].playerAddress.call{value: player0Payout}("");
+            require(success, 'call failed');
+            emit Payout(players[0].playerAddress, player0Payout);
         }
-        if(player1Payout != 0 && players[1].playerAddress.send(player1Payout)){
-            emit Payout(players[1].playerAddress, player1Payout);            
+        if(player1Payout != 0) {
+            (bool success, ) = players[1].playerAddress.call{value: player1Payout}("");
+            require(success, 'call failed');
+            emit Payout(players[1].playerAddress, player1Payout);
         }
 
         delete players;
